@@ -1,11 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from datetime import timedelta, datetime, timezone
 from passlib.context import CryptContext
 import jwt
-import logging
 
 from app.database import get_db
 from app.models.user import User
@@ -16,9 +14,6 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/users")
 
@@ -52,39 +47,17 @@ async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_db
 
 @router.post("/login", response_model=TokenResponse)
 async def login_user(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
-    try:
-        logger.debug(f"Received login request for user: {user_data.username}")
+    async with db as session:
+        result = await session.execute(select(User).filter(User.username == user_data.username))
+        user = result.scalars().first()
 
-        async with db as session:
-            result = await session.execute(select(User).filter(User.username == user_data.username))
-            user = result.scalars().first()
-            if not user:
-                logger.warning(f"User {user_data.username} not found.")
-                raise HTTPException(status_code=401, detail="Invalid username or password")
+        if not user or not verify_password(user_data.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Invalid username or password")
 
-            if not verify_password(user_data.password, user.hashed_password):
-                logger.warning(f"Incorrect password for user {user_data.username}.")
-                raise HTTPException(status_code=401, detail="Invalid username or password")
+        access_token = create_access_token({"sub": user.username}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+        refresh_token = create_access_token({"sub": user.username}, timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
 
-            logger.debug(f"User {user_data.username} successfully authenticated.")
-
-            access_token = create_access_token({"sub": user.username}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-            refresh_token = create_access_token({"sub": user.username}, timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
-
-            logger.debug(f"Generated tokens for user {user_data.username}. Access token: {access_token[:30]}...")
-            logger.debug(f"Generated refresh token for user {user_data.username}. Refresh token: {refresh_token[:30]}...")
-
-            return JSONResponse(
-                content={
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                    "token_type": "bearer"
-    }
-            )
-
-    except Exception as e:
-        logger.error(f"Error during login process: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
 @router.post("/refresh", response_model=TokenResponse)

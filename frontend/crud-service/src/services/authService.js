@@ -5,10 +5,9 @@ const API_URL = 'http://localhost:8000/api/users';
 export const loginUser = async (userData) => {
   try {
     const response = await axios.post(`${API_URL}/login`, {
-        username: userData.username ? username : null,
-        password: userData.password ? password : null
+      username: userData.username,
+      password: userData.password
     });
-    console.log('Response!');
     return response.data;
   } catch (error) {
     const errorMessage = error.response ? error.response.data.detail : error.message;
