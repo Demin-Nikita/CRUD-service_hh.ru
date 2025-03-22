@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
-import {loginUser} from '../services/authService'
+import axios from 'axios';
 
-// Авторизация (логин)
-// async function loginUser(userData) {
-//   try {
-//     const response = await axios.post(`${API_URL}/login`, {
-//         username: userData.username ? username : null,
-//         password: userData.password ? password : null
-//     });
-//     console.log('Response!');
-//     return response.data;
-//   } catch (error) {
-//     const errorMessage = error.response ? error.response.data.detail : error.message;
-//     throw new Error('Ошибка при входе: ' + errorMessage);
-//   }
-// };
-
+async function loginUser(userData) {
+  try {
+    const response = await axios.post(`http://localhost:8000/api/users/login`, {
+      username: userData.username, // Используем userData.username
+      password: userData.password  // Используем userData.password
+    });
+    console.log('Response!');
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response ? error.response.data.detail : error.message;
+    throw new Error('Ошибка при входе: ' + errorMessage);
+  }
+};
 
 const LoginPage = () => {
   // Состояние для хранения значений полей
@@ -33,16 +31,18 @@ const LoginPage = () => {
   };
 
   // Обработчик отправки формы
-  const handleSubmit = async () => {
-    try {
-      const response = await loginUser({ username, password });
-      console.log('Токены:', response);
-      localStorage.setItem('access_token', response.access_token);
-      localStorage.setItem('refresh_token', response.refresh_token);
-    } catch (error) {
-      setError(error.message);
-    }
-  };
+  const handleSubmit = async (e) => {
+      e.preventDefault(); // Предотвращаем перезагрузку страницы
+      try {
+        console.log('Req');
+        const response = await loginUser({ username, password });
+        console.log('Токены:', response);
+        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('refresh_token', response.refresh_token);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
 
   return (
     <div className="login-container">
