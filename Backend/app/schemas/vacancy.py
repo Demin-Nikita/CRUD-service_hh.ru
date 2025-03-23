@@ -24,3 +24,15 @@ class VacancyResponse(VacancyBase):
 
     class Config:
         from_attributes = True
+
+class VacancyUpdateRequest(BaseModel):
+    id: int
+    title: str = None
+    status: str = None
+    company_name: str = None
+    address: str = None
+    logo_url: str = None
+    description: str = None
+
+    class Config:
+        orm_mode = True
