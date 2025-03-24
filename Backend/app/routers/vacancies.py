@@ -1,10 +1,12 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
-from httpx import delete
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import func
 import httpx
+import jwt
 
 from app.models.vacancy import Vacancy
 from app.schemas.vacancy import (
@@ -15,6 +17,8 @@ from app.schemas.vacancy import (
 from app.database import get_db
 
 router = APIRouter()
+security = HTTPBearer()
+SECRET_KEY = "secret_key"
 
 def safe_get(data, *keys, default=None):
     for key in keys:
@@ -24,8 +28,26 @@ def safe_get(data, *keys, default=None):
             return default
     return data
 
+def get_current_user(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
+):
+    token = credentials.credentials
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
 @router.post("/v1/vacancy/create/{vacancy_id}", response_model=VacancyResponse)
-async def create_vacancy(vacancy_id: str, db: AsyncSession = Depends(get_db)):
+async def create_vacancy(
+    vacancy_id: str,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user)
+):
     url = f"https://api.hh.ru/vacancies/{vacancy_id}"
 
     async with httpx.AsyncClient() as client:
@@ -54,7 +76,11 @@ async def create_vacancy(vacancy_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/v1/vacancy/update/{vacancy_id}", response_model=VacancyResponse)
-async def update_vacancy(vacancy_id: str, db: AsyncSession = Depends(get_db)):
+async def update_vacancy(
+    vacancy_id: str,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user)
+):
     url = f"https://api.hh.ru/vacancies/{vacancy_id}"
 
     async with httpx.AsyncClient() as client:
@@ -88,8 +114,11 @@ async def update_vacancy(vacancy_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/v1/vacancy/update/", response_model=VacancyResponse)
-async def partial_update_vacancy(updated_vacancy: VacancyUpdateRequest, db: AsyncSession = Depends(get_db)):
-
+async def partial_update_vacancy(
+    updated_vacancy: VacancyUpdateRequest,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user)
+):
     existing_vacancy = await db.execute(
         select(Vacancy).where(Vacancy.id == int(updated_vacancy.id))
     )
@@ -111,7 +140,6 @@ async def partial_update_vacancy(updated_vacancy: VacancyUpdateRequest, db: Asyn
     if updated_vacancy.description:
         existing_vacancy.description = updated_vacancy.description
 
-    # Сохраняем изменения в базе данных
     db.add(existing_vacancy)
     await db.commit()
     await db.refresh(existing_vacancy)
@@ -119,16 +147,39 @@ async def partial_update_vacancy(updated_vacancy: VacancyUpdateRequest, db: Asyn
     return existing_vacancy
 
 
-@router.get("/v1/vacancy/list", response_model=list[VacancyResponse])
-async def get_vacancy_list(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Vacancy))
+@router.get("/v1/vacancy/list", response_model=dict)
+async def get_vacancy_list(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, le=100),
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user)
+):
+    offset = (page - 1) * page_size
+    result = await db.execute(select(Vacancy).limit(page_size).offset(offset))
     vacancies = result.scalars().all()
+
+    total_result = await db.execute(select(func.count()).select_from(Vacancy))
+    total_vacancies = total_result.scalar_one()
+
     vacancy_list = [VacancyResponse.model_validate(vacancy) for vacancy in vacancies]
-    return vacancy_list
+
+    return {
+        "data": vacancy_list,
+        "pagination": {
+            "current_page": page,
+            "total_pages": (total_vacancies // page_size) + (1 if total_vacancies % page_size > 0 else 0),
+            "total_items": total_vacancies,
+            "page_size": page_size
+        }
+    }
 
 
 @router.get("/v1/vacancy/get/{vacancy_id}", response_model=VacancyResponse)
-async def get_vacancy(vacancy_id: int, db: AsyncSession = Depends(get_db)):
+async def get_vacancy(
+        vacancy_id: int,
+        db: AsyncSession = Depends(get_db),
+        user: dict = Depends(get_current_user)
+):
     result = await db.execute(select(Vacancy).where(Vacancy.id == vacancy_id))
     vacancy = result.scalars().one_or_none()
 
@@ -139,7 +190,11 @@ async def get_vacancy(vacancy_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.delete("/v1/vacancy/delete/{vacancy_id}", status_code=204)
-async def delete_vacancy(vacancy_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_vacancy(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user)
+):
     result = await db.execute(select(Vacancy).where(Vacancy.id == vacancy_id))
     vacancy = result.scalars().one_or_none()
 

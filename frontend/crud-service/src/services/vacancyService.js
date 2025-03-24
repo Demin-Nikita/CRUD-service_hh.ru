@@ -2,9 +2,17 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api/v1/vacancy';
 
-export const fetchVacancies = async () => {
+export const fetchVacancies = async (page = 1, pageSize = 5) => {
     try {
-        const response = await axios.get(`${API_URL}/list`);
+        const response = await axios.get(`${API_URL}/list`, {
+            params: {
+                page,
+                page_size: pageSize,
+            },
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            },
+        })
         return response.data;
     } catch (error) {
         console.error('Ошибка при получении вакансий:', error);
@@ -14,7 +22,7 @@ export const fetchVacancies = async () => {
 
 export const addVacancy = async (vacancyId) => {
     try {
-        const response = await axios.post(`${API_URL}/create/${vacancyId}`, {
+        const response = await axios.post(`${API_URL}/create/${vacancyId}`,  {}, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
             },
@@ -42,7 +50,7 @@ export const deleteVacancy = async (vacancyId) => {
 
 export const updateVacancy = async (vacancyId) => {
     try {
-        const response = await axios.put(`${API_URL}/update/${vacancyId}`, {
+        const response = await axios.put(`${API_URL}/update/${vacancyId}`, {}, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
             },

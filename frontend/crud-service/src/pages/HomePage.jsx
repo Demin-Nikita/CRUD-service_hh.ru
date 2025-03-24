@@ -5,9 +5,17 @@ import { useVacancies } from "../context/VacancyContext";
 import VacancyCard from '../components/VacancyCard';
 
 const HomePage = () => {
-  const { vacancies, setVacancies, error } = useVacancies();
+  const {
+    vacancies,
+    setVacancies,
+    error,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    loadVacancies,
+  } = useVacancies();
   const [vacancyId, setVacancyId] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const navigate = useNavigate();
   document.body.classList.add('dark');
 
@@ -19,7 +27,7 @@ const HomePage = () => {
   const handleAddVacancy = async () => {
     try {
       const newVacancy = await addVacancy(vacancyId);
-      setVacancies([...vacancies, newVacancy]);
+      loadVacancies();
       setIsModalOpen(false);
       setVacancyId('');
     } catch (error) {
@@ -31,6 +39,12 @@ const HomePage = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     navigate('/login');
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
   };
 
   return (
@@ -91,6 +105,26 @@ const HomePage = () => {
           {vacancies.map((vacancy) => (
             <VacancyCard key={vacancy.id} vacancy={vacancy} />
           ))}
+        </div>
+
+        <div className="pagination d-flex justify-content-center mt-3">
+          <button
+            className="btn btn-secondary mx-1"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            {"<"} Назад
+          </button>
+          <span className="mx-3 text-white">
+            Страница {currentPage} из {totalPages}
+          </span>
+          <button
+            className="btn btn-secondary mx-1"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Вперед {">"}
+          </button>
         </div>
       </div>
     </div>
