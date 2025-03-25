@@ -4,18 +4,17 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: hh_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres_init:/docker-entrypoint-initdb.d
     networks:
       - app_network
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d hh_db"]
+      test: ["CMD-SHELL", "pg_isready -U user -d hh_db"]
       interval: 5s
       retries: 5
 
@@ -23,7 +22,7 @@ services:
     build:
       context: ./Backend
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/hh_db
+      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/hh_db
       - SECRET_KEY=secret_key
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
