@@ -7,7 +7,7 @@ from .models.base import Base
 load_dotenv()
 
 # Get the database URL from environment variable
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:PA$$WORD@localhost:5432/hh_db")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Create a session maker to interact with the database asynchronously
 engine = create_async_engine(DATABASE_URL, echo=False)
