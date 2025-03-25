@@ -4,7 +4,7 @@
 
 ### **1. Клонирование репозитория**
 ```bash
-git clone https://github.com/yourusername/CRUD-service_hh.ru.git
+git clone https://github.com/Demin-Nikita/CRUD-service_hh.ru.git
 cd CRUD-service_hh.ru
 ```
 
