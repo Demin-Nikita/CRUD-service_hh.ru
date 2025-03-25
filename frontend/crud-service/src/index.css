@@ -1,0 +1,26 @@
+body.dark {
+  background-color: #121b28;
+  color: #e0e0e0;
+}
+
+.card.text-light {
+  color: #f1f1f1;
+}
+
+.text-muted {
+  color: #aaa;
+}
+
+button {
+  background-color: #444;
+  color: white;
+  border: none;
+}
+
+button:hover {
+  background-color: #555;
+}
+
+.form-check-label {
+  color: #fff;
+}

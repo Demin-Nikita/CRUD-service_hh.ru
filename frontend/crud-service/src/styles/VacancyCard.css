@@ -1,0 +1,52 @@
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: none;
+  background-color: #1e2734;
+  color: #f8f9fa;
+  margin-bottom: 1rem;
+  position: relative;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover, .vacancy-card-actions {
+  transform: scale(1.05);
+}
+
+.vacancy-logo {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #ddd;
+  background-color: white;
+  padding: 1px;
+  object-fit: contain;
+  margin-right: 15px;
+  border-radius: 50%;
+}
+
+.vacancy-card-actions {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.delete-btn, .update-btn, .edit-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.delete-btn:hover, .update-btn:hover, .edit-btn:hover {
+  opacity: 0.8;
+  transform: scale(1.2);
+}
+
+.delete-btn svg, .update-btn svg, .edit-btn svg{
+  width: 30px;
+  height: 30px;
+}
