@@ -1,13 +1,13 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 from datetime import datetime
 
 class VacancyBase(BaseModel):
-    title: str
-    company_name: str
-    address: str
+    title: str | None = None
+    company_name: str | None = None
+    address: str | None = None
     logo_url: str | None = None
-    description: str
-    status: str
+    description: str | None = None
+    status: str | None = None
 
 class VacancyCreate(VacancyBase):
     pass
@@ -16,23 +16,17 @@ class VacancyResponse(VacancyBase):
     id: int
     created_at: datetime
 
-    @field_validator("created_at")
-    def validate_created_at(cls, value: datetime):
-        if value > datetime.now():
-            raise ValueError("Creation date cannot be in the future")
-        return value
-
     class Config:
         from_attributes = True
 
 class VacancyUpdateRequest(BaseModel):
     id: int
-    title: str = None
-    status: str = None
-    company_name: str = None
-    address: str = None
-    logo_url: str = None
-    description: str = None
+    title: str | None = None
+    status: str | None = None
+    company_name: str | None = None
+    address: str | None = None
+    logo_url: str | None = None
+    description: str | None = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True

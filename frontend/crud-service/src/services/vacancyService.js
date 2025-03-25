@@ -1,17 +1,12 @@
-import axios from 'axios';
+import axiosInstance from '../services/authService';
 
-const API_URL = 'http://localhost:8000/api/v1/vacancy';
+const API_URL = '/v1/vacancy';
 
+// Fetch a list of vacancies with pagination
 export const fetchVacancies = async (page = 1, pageSize = 5) => {
     try {
-        const response = await axios.get(`${API_URL}/list`, {
-            params: {
-                page,
-                page_size: pageSize,
-            },
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            },
+        const response = await axiosInstance.get(`${API_URL}/list`, {
+            params: { page, page_size: pageSize },
         })
         return response.data;
     } catch (error) {
@@ -20,13 +15,10 @@ export const fetchVacancies = async (page = 1, pageSize = 5) => {
     }
 };
 
+// Add a new vacancy by ID
 export const addVacancy = async (vacancyId) => {
     try {
-        const response = await axios.post(`${API_URL}/create/${vacancyId}`,  {}, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            },
-        })
+        const response = await axiosInstance.post(`${API_URL}/create/${vacancyId}`);
         return response.data;
     } catch (error) {
         console.error('Ошибка при добавлении вакансии:', error);
@@ -34,13 +26,10 @@ export const addVacancy = async (vacancyId) => {
     }
 };
 
+// Delete a vacancy by ID
 export const deleteVacancy = async (vacancyId) => {
     try {
-        const response = await axios.delete(`${API_URL}/delete/${vacancyId}`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            },
-        })
+        const response = await axiosInstance.delete(`${API_URL}/delete/${vacancyId}`);
         return response.data;
     } catch (error) {
         console.error('Ошибка при удалении вакансии:', error);
@@ -48,13 +37,10 @@ export const deleteVacancy = async (vacancyId) => {
     }
 };
 
+// Update a vacancy by ID
 export const updateVacancy = async (vacancyId) => {
     try {
-        const response = await axios.put(`${API_URL}/update/${vacancyId}`, {}, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            },
-        })
+        const response = await axiosInstance.put(`${API_URL}/update/${vacancyId}`);
         return response.data;
     } catch (error) {
         console.error('Ошибка при обновлении данных о вакансии:', error);
@@ -62,13 +48,10 @@ export const updateVacancy = async (vacancyId) => {
     }
 };
 
+// Edit a vacancy with new data
 export const editVacancy = async (editedVacancy) => {
     try {
-         const response = await axios.patch(`${API_URL}/update/`, editedVacancy, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            },
-        })
+        const response = await axiosInstance.patch(`${API_URL}/update/`, editedVacancy)
         return response.data;
     } catch (error) {
         console.error('Ошибка при обновлении данных о вакансии:', error);

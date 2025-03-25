@@ -10,22 +10,22 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Handle username input change
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
   };
-
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
   };
 
+  // Handle form submission (login attempt)
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await loginUser({ username, password });
-      console.log('Токены:', response);
+      // Store access and refresh tokens in localStorage
       localStorage.setItem('access_token', response.access_token);
       localStorage.setItem('refresh_token', response.refresh_token);
-
       navigate('/home');
     } catch (error) {
       setError(error.message);

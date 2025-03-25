@@ -9,13 +9,15 @@
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 9999;
+  cursor: default;
 }
 
 .modal-content {
   background-color: white;
   padding: 20px;
   border-radius: 10px;
-  width: 400px;
+  width: 500px;
+  max-width: 100%;
 }
 
 .modal-header {

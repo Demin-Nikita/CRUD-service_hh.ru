@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/EditVacancyModal.css'
 
+// Modal component for editing a vacancy
 const EditVacancyModal = ({ isOpen, onClose, vacancy, onUpdate }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -9,6 +10,7 @@ const EditVacancyModal = ({ isOpen, onClose, vacancy, onUpdate }) => {
     description: '',
   });
 
+  // Populate the form data when the vacancy is passed and modal is open
   useEffect(() => {
     if (vacancy && isOpen) {
       setFormData({
@@ -20,6 +22,7 @@ const EditVacancyModal = ({ isOpen, onClose, vacancy, onUpdate }) => {
     }
   }, [vacancy, isOpen]);
 
+  // Handle input field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -28,6 +31,7 @@ const EditVacancyModal = ({ isOpen, onClose, vacancy, onUpdate }) => {
     }));
   };
 
+  // Handle form submission to update the vacancy
   const handleSubmit = async (e) => {
     e.preventDefault();
     const updatedVacancy = { ...vacancy, ...formData };
@@ -36,11 +40,12 @@ const EditVacancyModal = ({ isOpen, onClose, vacancy, onUpdate }) => {
   };
 
   return isOpen ? (
-    <div className="modal" >
-      <div className="modal-content bg-dark border-1 shadow-lg rounded-3 w-25" onClick={(e) => e.stopPropagation()}>
+    <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content bg-dark border-1 shadow-lg rounded-3" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header border-0">
           <h5 className="modal-title">Редактировать вакансию</h5>
         </div>
+        {/* Input field for title */}
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
             <div className="mb-3">
@@ -53,6 +58,7 @@ const EditVacancyModal = ({ isOpen, onClose, vacancy, onUpdate }) => {
                 onChange={handleChange}
               />
             </div>
+            {/* Input field for company name */}
             <div className="mb-3">
               <label className="form-label">Компания</label>
               <input
@@ -63,6 +69,7 @@ const EditVacancyModal = ({ isOpen, onClose, vacancy, onUpdate }) => {
                 onChange={handleChange}
               />
             </div>
+            {/* Input field for status */}
             <div className="mb-3">
               <label className="form-label">Статус</label>
               <input
@@ -73,6 +80,7 @@ const EditVacancyModal = ({ isOpen, onClose, vacancy, onUpdate }) => {
                 onChange={handleChange}
               />
             </div>
+            {/* Textarea field for description */}
             <div className="mb-3">
               <label className="form-label">Описание</label>
               <textarea

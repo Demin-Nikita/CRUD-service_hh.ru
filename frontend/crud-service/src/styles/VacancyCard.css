@@ -1,13 +1,16 @@
-.bg-custom-dark {
-  background-color: #1e2734;
-}
-
 .card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: none;
+  background-color: #1e2734;
+  color: #f8f9fa;
+  margin-bottom: 1rem;
   position: relative;
+  transition: transform 0.3s ease;
+  cursor: pointer;
 }
 
-.card:hover .vacancy-card-actions {
-  display: flex;
+.card:hover, .vacancy-card-actions {
+  transform: scale(1.05);
 }
 
 .vacancy-card-actions {
