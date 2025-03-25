@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IconTrash, IconRefresh, IconEdit,} from "@tabler/icons-react";
+import { IconTrash, IconRefresh, IconEdit } from "@tabler/icons-react";
 import { useNavigate } from 'react-router-dom';
 import { deleteVacancy, updateVacancy, editVacancy } from '../services/vacancyService';
 import { useVacancies } from "../context/VacancyContext";
@@ -35,8 +35,7 @@ const VacancyCard = ({ vacancy, onEditClick, onDeleteClick, onUpdateClick }) => 
             <img
               src={vacancy.logo_url}
               alt={vacancy.company_name}
-              className="rounded-circle me-3"
-              style={{ width: '40px', height: '40px', border: '2px solid #ddd' }}
+              className="vacancy-logo"
             />
           )}
           <h5 className="card-title mb-0">{vacancy.title}</h5>

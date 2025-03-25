@@ -13,6 +13,17 @@
   transform: scale(1.05);
 }
 
+.vacancy-logo {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #ddd;
+  background-color: white;
+  padding: 1px;
+  object-fit: contain;
+  margin-right: 15px;
+  border-radius: 50%;
+}
+
 .vacancy-card-actions {
   position: absolute;
   bottom: 10px;
