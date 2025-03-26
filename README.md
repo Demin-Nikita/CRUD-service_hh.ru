@@ -56,7 +56,7 @@ uvicorn app.main:app --port 8000
 
 ### **2. Настройка frontend**
 ```bash
-cd frontend
+cd frontend/crud-service
 npm install
 ```
 
